@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Daily Log v5",
+  "type": "object",
+  "required": ["schema_version", "date", "tasks"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 5 },
+    "date": { "type": "string", "format": "date" },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["owner", "title", "scope", "work_type", "execution_state", "priority_changed"],
+        "properties": {
+          "owner": { "type": "string" },
+          "title": { "type": "string" },
+          "scope": { "type": "string", "enum": ["project", "aligned_client", "external"] },
+          "work_type": { "type": "string", "enum": ["internal", "client", "ooo"] },
+          "execution_state": { "type": "string", "enum": ["active", "blocked", "none"] },
+          "goal_id": { "type": ["string", "null"] },
+          "priority_changed": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

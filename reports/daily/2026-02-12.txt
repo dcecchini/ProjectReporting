@@ -1,0 +1,9 @@
+Abdul: Backend issue investigation
+Aleksei: Client projects
+Bunyamin: Changing implementation of NLP step
+Cabir: Out of office
+David C: Testing alternative Airflow setting; Everygene project
+Galip: Reviewing benchmark results; reviewing NLP step
+Mehmet: Shared benchmark results for review; creating large multimodality dataset
+Rakshit: FHIR to OMOP and OMOP to FHIR; Everygene project
+Resul: Patient Registry: case finding

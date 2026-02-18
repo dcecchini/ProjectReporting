@@ -1,0 +1,11 @@
+- Abdul: Finalized follow-up questions; reviewed materialized views  
+- Aleksei: Completed client project deliverables; no pending blockers  
+- Bunyamin: Revised NLP implementation logic; validated output consistency  
+- Cabir: On leave (OOO); no active tasks  
+- David C: Validated Airflow settings; progressed Everygene project workflow  
+- Galip: Processed MSK data; aligned NLP step with new implementation  
+- Mehmet: CPU/GPU ingestion complete; advancing PDF ingestion testing  
+- Rakshit: Completed FHIR–OMOP mapping; addressed client task dependencies  
+- Resul: Identified oncology entities; expanded case finding logic  
+
+Next day focus: PDF ingestion, NLP alignment, FHIR mapping validation

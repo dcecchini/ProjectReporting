@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Weekly Goals v1",
+  "type": "object",
+  "required": ["schema_version", "week", "goals"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "week": { "type": "string", "pattern": "^\\d{4}-W\\d{2}$" },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["goal_id", "description", "owners", "status"],
+        "properties": {
+          "goal_id": { "type": "string" },
+          "description": { "type": "string" },
+          "owners": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "acceptance_criteria": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "jira": { "type": ["string", "null"] },
+          "status": {
+            "type": "string",
+            "enum": ["not_started", "in_progress", "achieved", "partially_achieved", "not_achieved", "blocked", "deferred"]
+          }
+        }
+      }
+    }
+  }
+}

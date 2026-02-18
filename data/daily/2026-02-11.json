@@ -1,0 +1,87 @@
+{
+  "date": "2026-02-11",
+  "schema_version": 5,
+  "tasks": [
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G1",
+      "linked_goal": true,
+      "owner": "Abdul",
+      "priority_changed": false,
+      "title": "Reviewing follow-up questions and materialized views"
+    },
+    {
+      "allocation": "client",
+      "execution_state": "none",
+      "goal_id": "W06-G2",
+      "linked_goal": false,
+      "owner": "Aleksei",
+      "priority_changed": false,
+      "title": "Client projects"
+    },
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G3",
+      "linked_goal": true,
+      "owner": "Bunyamin",
+      "priority_changed": false,
+      "title": "Changing implementation of NLP step"
+    },
+    {
+      "allocation": "ooo",
+      "execution_state": "none",
+      "goal_id": "W06-G4",
+      "linked_goal": false,
+      "owner": "Cabir",
+      "priority_changed": false,
+      "title": "OOO"
+    },
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G5",
+      "linked_goal": true,
+      "owner": "David C",
+      "priority_changed": false,
+      "title": "Testing alternative Airflow setting; Everygene project"
+    },
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G6",
+      "linked_goal": true,
+      "owner": "Galip",
+      "priority_changed": false,
+      "title": "Support for processing MSK data; reviewing NLP step"
+    },
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G6",
+      "linked_goal": true,
+      "owner": "Mehmet",
+      "priority_changed": false,
+      "title": "Speed benchmarking: finished ingestion of TXT files with CPU and GPU; working on ingestion of PDF"
+    },
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G7",
+      "linked_goal": true,
+      "owner": "Rakshit",
+      "priority_changed": false,
+      "title": "FHIR to OMOP and OMOP to FHIR; client-related tasks"
+    },
+    {
+      "allocation": "core",
+      "execution_state": "active",
+      "goal_id": "W06-G8",
+      "linked_goal": true,
+      "owner": "Resul",
+      "priority_changed": false,
+      "title": "Patient Registry: case finding; identification of oncology entities"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+Weekly Report
+==============
+Owner: Abdul
+  Completion: 80.0%
+  Weighted Completion: 80.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0
+
+Owner: Aleksei
+  Completion: 0.0%
+  Weighted Completion: 0.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 100.0%
+  Priority Changes: 0
+
+Owner: Bunyamin
+  Completion: 100.0%
+  Weighted Completion: 100.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0
+
+Owner: Cabir
+  Completion: 20.0%
+  Weighted Completion: 20.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 80.0%
+  Priority Changes: 0
+
+Owner: David C
+  Completion: 100.0%
+  Weighted Completion: 100.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0
+
+Owner: Galip
+  Completion: 100.0%
+  Weighted Completion: 100.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0
+
+Owner: Mehmet
+  Completion: 100.0%
+  Weighted Completion: 100.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0
+
+Owner: Rakshit
+  Completion: 80.0%
+  Weighted Completion: 80.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0
+
+Owner: Resul
+  Completion: 100.0%
+  Weighted Completion: 100.0%
+  Drift Ratio: 0.0%
+  Unplanned Work: 0.0%
+  Priority Changes: 0

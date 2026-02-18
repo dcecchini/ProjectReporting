@@ -1,0 +1,59 @@
+MONTHLY PERFORMANCE REPORT
+===========================
+
+Weeks analyzed: 5
+
+Owner: Abdul
+  Avg Completion: 80.0%
+  Avg Weighted Completion: 80.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Aleksei
+  Avg Completion: 0.0%
+  Avg Weighted Completion: 0.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Bunyamin
+  Avg Completion: 100.0%
+  Avg Weighted Completion: 100.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Cabir
+  Avg Completion: 20.0%
+  Avg Weighted Completion: 20.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 80.0%
+
+Owner: David C
+  Avg Completion: 100.0%
+  Avg Weighted Completion: 100.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Galip
+  Avg Completion: 100.0%
+  Avg Weighted Completion: 100.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Mehmet
+  Avg Completion: 100.0%
+  Avg Weighted Completion: 100.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Rakshit
+  Avg Completion: 80.0%
+  Avg Weighted Completion: 80.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+
+Owner: Resul
+  Avg Completion: 100.0%
+  Avg Weighted Completion: 100.0%
+  Avg Drift: 0.0%
+  Avg Unplanned Work: 0.0%
+

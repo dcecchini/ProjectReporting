@@ -1,0 +1,69 @@
+{
+  "schema_version": 5,
+  "week": "2026-W07",
+  "goals": [
+    {
+      "goal_id": "G-001",
+      "owner": "Abdul",
+      "title": "Follow-up questions and backend improvements",
+      "priority": 3,
+      "completed": false
+    },
+    {
+      "goal_id": "G-002",
+      "owner": "Aleksei",
+      "title": "Client projects",
+      "priority": 2,
+      "completed": false
+    },
+    {
+      "goal_id": "G-003",
+      "owner": "Bunyamin",
+      "title": "NLP pipeline implementation and testing",
+      "priority": 3,
+      "completed": false
+    },
+    {
+      "goal_id": "G-004",
+      "owner": "Cabir",
+      "title": "Annotations to OMOP improvements",
+      "priority": 2,
+      "completed": false
+    },
+    {
+      "goal_id": "G-005",
+      "owner": "David C",
+      "title": "Airflow configuration testing; Everygene project",
+      "priority": 3,
+      "completed": false
+    },
+    {
+      "goal_id": "G-006",
+      "owner": "Galip",
+      "title": "MSK data processing and NLP review",
+      "priority": 2,
+      "completed": false
+    },
+    {
+      "goal_id": "G-007",
+      "owner": "Mehmet",
+      "title": "Multimodality dataset creation and speed benchmarking",
+      "priority": 3,
+      "completed": false
+    },
+    {
+      "goal_id": "G-008",
+      "owner": "Rakshit",
+      "title": "FHIR↔OMOP integration; Everygene tasks",
+      "priority": 3,
+      "completed": false
+    },
+    {
+      "goal_id": "G-009",
+      "owner": "Resul",
+      "title": "Patient Registry: case finding and oncology entities",
+      "priority": 3,
+      "completed": false
+    }
+  ]
+}

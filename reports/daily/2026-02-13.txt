@@ -1,0 +1,9 @@
+Abdul: Improving SQL refinement and follow-up questions, checking GCP tools
+Aleksei: Client projects
+Bunyamin: Changing implementation of NLP step, testing GliNER model
+Cabir: Improving annotations2omop
+David C: Testing alternative Airflow setting, Everygene project
+Galip: Testing measurement pipeline
+Mehmet: Creating big multimodality dataset, testing assertion status
+Rakshit: Stuck on TPJ setup for Everygene
+Resul: Patient Registry: case finding

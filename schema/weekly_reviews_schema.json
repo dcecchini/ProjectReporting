@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Weekly Review v1",
+  "type": "object",
+  "required": ["schema_version", "week", "goals"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "week": { "type": "string", "pattern": "^\\d{4}-W\\d{2}$" },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["goal_id", "final_status", "completion_ratio", "notes"],
+        "properties": {
+          "goal_id": { "type": "string" },
+          "final_status": {
+            "type": "string",
+            "enum": ["achieved", "partially_achieved", "not_achieved", "cancelled", "rolled_over"]
+          },
+          "completion_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "rolled_over_to": { "type": ["string", "null"], "pattern": "^\\d{4}-W\\d{2}$" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_goals": { "type": "integer" },
+        "achieved": { "type": "integer" },
+        "partially_achieved": { "type": "integer" },
+        "not_achieved": { "type": "integer" },
+        "cancelled": { "type": "integer" },
+        "rolled_over": { "type": "integer" }
+      }
+    }
+  }
+}

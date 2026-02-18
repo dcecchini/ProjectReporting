@@ -1,0 +1,9 @@
+Abdul: Reviewing follow-up questions and materialized views
+Aleksei: Client projects
+Bunyamin: Changing implementation of NLP step
+Cabir: OOO
+David C: Testing alternative Airflow setting; Everygene project
+Galip: Support for processing MSK data; reviewing NLP step
+Mehmet: Speed benchmarking: finished ingestion of TXT files with CPU and GPU; working on ingestion of PDF
+Rakshit: FHIR to OMOP and OMOP to FHIR; client-related tasks
+Resul: Patient Registry: case finding; identification of oncology entities
