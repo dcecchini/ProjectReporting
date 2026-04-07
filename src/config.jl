@@ -1,6 +1,8 @@
 module Config
 
 using Dates
+using DotEnv
+using Logging
 
 export ensure_directories
 export daily_data_path
@@ -12,11 +14,24 @@ export monthly_report_path
 export iso_week_string
 export month_string
 
+
+# Load environment variables (secrets)
+DotEnv.load!()
+
+const PROJECT_NAME = get(ENV, "PROJECT_NAME", "Patient Journey Intelligence")
+const PROJECT_SHORTNAME = get(ENV, "PROJECT_SHORTNAME", "PJI")
+
 # ------------------------------------------------------------
 # Root
 # ------------------------------------------------------------
 
 const ROOT_DIR = normpath(joinpath(@__DIR__, ".."))
+
+
+# Set logging
+const LOG_LEVEL = Logging.Info         # Debug | Info | Warn | Error
+const LOG_DIR = joinpath(ROOT_DIR, "log")
+
 
 # ------------------------------------------------------------
 # Data Directories
@@ -38,6 +53,33 @@ const REPORTS_DIR          = joinpath(ROOT_DIR, "reports")
 const DAILY_REPORTS_DIR    = joinpath(REPORTS_DIR, "daily")
 const WEEKLY_REPORTS_DIR   = joinpath(REPORTS_DIR, "weekly")
 const MONTHLY_REPORTS_DIR  = joinpath(REPORTS_DIR, "monthly")
+
+
+# ------------------------------------------------------------
+# Team Configuration
+# ------------------------------------------------------------
+# TODO: Load this from a config file or environment variable
+
+const TEAM_MEMBERS = [
+    "Abdul",
+    "Abhinav",
+    "Aleksei",
+    "Bunyamin",
+    "Cabir",
+    "Galip",
+    "Mehmet",
+    "Rakshit",
+    "Resul",
+    "David C"
+]
+
+
+# ------------------------------------------------------------
+# Secrets from environment variables
+# ------------------------------------------------------------
+
+const TEAMS_WEBHOOK_URL = get(ENV, "TEAMS_WEBHOOK_URL", "")
+
 
 # ------------------------------------------------------------
 # Directory Initialization
@@ -119,6 +161,13 @@ end
 function monthly_report_path(month::String)
     joinpath(MONTHLY_REPORTS_DIR,
         month * ".txt")
+end
+
+
+# --- Split into tasks ---
+function split_tasks(text::String; sep::Union{Char,String}=';')
+    isempty(strip(text)) && return String[]
+    return strip.(split(text, sep))
 end
 
 end

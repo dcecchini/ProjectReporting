@@ -1,4 +1,4 @@
-name = "SimpleProjectReporting"
+name = "ProjectReporting"
 uuid = "31a83c62-98e4-492e-8bc1-9c8cb5d05b8b"
 version = "0.1.0"
 authors = ["David Cecchini <dadachini@hotmail.com>"]
@@ -6,13 +6,26 @@ authors = ["David Cecchini <dadachini@hotmail.com>"]
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DotEnv = "4dc1fcf4-5e3b-5448-94ab-0c38ec0385c1"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+GenieFramework = "a59fdf5c-6bf0-4f5d-949c-a137c9e2f353"
+Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+JSONSchema = "7d188eb4-7ad8-530c-ae41-71a32a6d4692"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+LoggingExtras = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
+DotEnv = "1.0.0"
 Genie = "5.35.6"
+GenieFramework = "3.0.1"
+Glob = "1.4.0"
+Logging = "1.11.0"
+LoggingExtras = "1.2.0"
 Stipple = "0.31.47"
+StippleUI = "0.24.14"
 julia = "1.9"

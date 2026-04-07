@@ -1,0 +1,111 @@
+<h1>📅 Daily Updates</h1>
+
+<!-- DATE SELECTOR -->
+<div class="row items-center q-gutter-sm q-mb-md">
+    <q-input v-model="date" label="Date" type="date" dense outlined style="width: 180px;"></q-input>
+    <q-btn label="Load" @click="load = true" color="primary"></q-btn>
+</div>
+
+<!-- MODE TOGGLE -->
+<div class="row q-gutter-sm q-mb-md">
+    <q-btn label="By Allocation" @click="mode = 'allocation'" :flat="mode !== 'allocation'" color="primary"></q-btn>
+    <q-btn label="By Member" @click="mode = 'member'" :flat="mode !== 'member'" color="primary"></q-btn>
+</div>
+
+<hr/>
+
+<!-- BLOCKERS SECTION -->
+<div class="q-pa-md q-mb-md">
+    <h2>⚠ Blockers</h2>
+    <div v-for="m in members" :key="m.name">
+        <div v-for="(t, ti) in m.tasks" :key="ti">
+            <div v-if="t.blocker && t.blocker.trim() !== ''">
+                ⚠ {{ m.name }} — {{ t.blocker }}
+            </div>
+        </div>
+    </div>
+    <p v-if="!members.some(m => m.tasks.some(t => t.blocker && t.blocker.trim() !== ''))" class="text-grey">No blockers reported.</p>
+</div>
+
+<hr/>
+
+<!-- ALLOCATION VIEW -->
+<div v-show="mode === 'allocation'">
+    <h2>📦 By Allocation</h2>
+    
+    <div v-for="group in grouped" :key="group[0]" class="q-mb-lg">
+        <h3 class="q-mb-sm">{{ allocation_labels[group[0]] || group[0] }}</h3>
+        <q-markup-table flat bordered dense>
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Member</th>
+                    <th style="width: 300px;">Description</th>
+                    <th style="width: 120px;">State</th>
+                    <th style="width: 150px;">Blocker</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, idx) in group[1]" :key="idx">
+                    <td>{{ item[0] }}</td>
+                    <td><q-input v-model="item[1].description" dense borderless></q-input></td>
+                    <td><q-select v-model="item[1].execution_state" :options="execution_state_options" dense borderless></q-select></td>
+                    <td><q-input v-model="item[1].blocker" dense borderless></q-input></td>
+                </tr>
+            </tbody>
+        </q-markup-table>
+    </div>
+    
+    <p v-if="grouped.length === 0" class="text-grey">No tasks to display. Add tasks in the Member view.</p>
+</div>
+
+<!-- MEMBER VIEW - Single table layout -->
+<div v-show="mode === 'member'">
+    <h2>👤 By Member</h2>
+    
+    <!-- Add task row -->
+    <div class="row items-center q-gutter-sm q-mb-md">
+        <q-select v-model="add_task_member" :options="team_members" label="Select member" dense outlined style="width: 150px;"></q-select>
+        <q-btn label="+ Add Task" @click="add_task_member && (add_task = members.findIndex(m => m.name === add_task_member) + 1)" color="secondary" size="sm" :disable="!add_task_member"></q-btn>
+    </div>
+    
+    <!-- Tasks table -->
+    <q-markup-table flat bordered>
+        <thead>
+            <tr>
+                <th style="width: 120px;">Member</th>
+                <th style="width: 250px;">Description</th>
+                <th style="width: 150px;">Allocation</th>
+                <th style="width: 120px;">State</th>
+                <th style="width: 150px;">Blocker</th>
+                <th style="width: 50px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <template v-for="(m, mIndex) in members" :key="m.name">
+                <tr v-for="(t, tIndex) in m.tasks" :key="m.name + '-' + tIndex">
+                    <td>{{ m.name }}</td>
+                    <td><q-input v-model="t.description" dense borderless></q-input></td>
+                    <td><q-select v-model="t.allocation" :options="allocation_options" dense borderless></q-select></td>
+                    <td><q-select v-model="t.execution_state" :options="execution_state_options" dense borderless></q-select></td>
+                    <td><q-input v-model="t.blocker" dense borderless></q-input></td>
+                    <td><q-btn icon="delete" flat round size="sm" color="negative" @click="delete_task_member = mIndex + 1; delete_task_index = tIndex + 1"></q-btn></td>
+                </tr>
+            </template>
+        </tbody>
+    </q-markup-table>
+</div>
+
+<hr/>
+
+<!-- ACTIONS -->
+<div class="row q-gutter-sm q-mb-md">
+    <q-btn label="Save" @click="save = true" color="primary"></q-btn>
+    <q-btn label="Generate" @click="generate = true" color="primary"></q-btn>
+    <q-btn label="Send" @click="send = true" color="primary"></q-btn>
+</div>
+
+<!-- PREVIEW -->
+<div v-show="preview && preview.length > 0">
+    <h2>Preview</h2>
+    <pre>{{ preview }}</pre>
+</div>

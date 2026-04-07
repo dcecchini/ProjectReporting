@@ -1,7 +1,7 @@
 module WeeklyMetrics
 
 using Dates
-using SimpleProjectReporting.SchemaValidator
+using ProjectReporting.SchemaValidator
 
 export compute_weekly_metrics, GoalMetrics
 

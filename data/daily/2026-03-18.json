@@ -1,0 +1,78 @@
+{
+  "entries": [
+    {
+      "member": { "name": "David C" },
+      "tasks": [
+        { "blocker": null, "allocation": "project_client", "execution_state": "active", "tags": [], "description": "Everygene" },
+        { "blocker": null, "allocation": "project_client", "execution_state": "active", "tags": [], "description": "Heartgene" },
+        { "blocker": null, "allocation": "core", "execution_state": "active", "tags": [], "description": "TPJ management" }
+      ]
+    },
+    {
+      "member": { "name": "Rakshit" },
+      "tasks": [
+        { "blocker": null, "allocation": "external_inhouse", "execution_state": "active", "tags": [], "description": "GenAI Lab support" },
+        { "blocker": null, "allocation": "external_inhouse", "execution_state": "active", "tags": [], "description": "Terminology Server support" },
+        { "blocker": null, "allocation": "external_client", "execution_state": "active", "tags": [], "description": "Client Support" }
+      ]
+    },
+    {
+      "member": { "name": "Bunyamin" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_provenance", "execution_state": "active", "tags": [], "description": "provenance testing" }
+      ]
+    },
+    {
+      "member": { "name": "Aleksei" },
+      "tasks": [
+        { "blocker": null, "allocation": "external_client", "execution_state": "active", "tags": [], "description": "Client Projects" }
+      ]
+    },
+    {
+      "member": { "name": "Galip" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_ingestion", "execution_state": "active", "tags": [], "description": "PDF ingestion review" },
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "table detection with docling testing" },
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "table extraction with docling testing" }
+      ]
+    },
+    {
+      "member": { "name": "Abhinav" },
+      "tasks": [
+        { "blocker": null, "allocation": "project_client", "execution_state": "active", "tags": [], "description": "Fred Hutch" }
+      ]
+    },
+    {
+      "member": { "name": "Abdul" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "DCS development" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "querybot testing" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "internal model review" },
+        { "blocker": null, "allocation": "core", "execution_state": "active", "tags": [], "description": "demo server development" }
+      ]
+    },
+    {
+      "member": { "name": "Cabir" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_omop", "execution_state": "active", "tags": [], "description": "merger step improvement" }
+      ]
+    },
+    {
+      "member": { "name": "Resul" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "Data Curation improvements" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "custom NLP pipeline integration" }
+      ]
+    },
+    {
+      "member": { "name": "Mehmet" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "measurements review" },
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "easyocr vs tesseract cpu comparison" },
+        { "blocker": null, "allocation": "core_omop", "execution_state": "active", "tags": [], "description": "section header concept mapping" },
+        { "blocker": null, "allocation": "core_ingestion", "execution_state": "active", "tags": [], "description": "document ingestion review" }
+      ]
+    }
+  ],
+  "date": "2026-03-18"
+}

@@ -4,9 +4,10 @@ Pkg.activate(joinpath(@__DIR__, ".."))
 
 using Dates
 using ArgParse
-using SimpleProjectReporting.Config
-using SimpleProjectReporting.Daily
-using SimpleProjectReporting.LLMSummarizer
+using ProjectReporting.Config
+using ProjectReporting.Daily
+using ProjectReporting.LLMSummarizer
+using ProjectReporting.Services.ReportService
 
 
 # ----------------------------------------------------
@@ -45,22 +46,11 @@ function main()
         tasks = []
     else
         println("Loaded existing daily data for $date_str")
-        tasks = daily_data.tasks
-    end
-
-    # Optional: validate tasks
-    for t in tasks
-        # linked_goal and priority_changed are optional, default false
-        if t.linked_goal === nothing
-            t.linked_goal = false
-        end
-        if t.priority_changed === nothing
-            t.priority_changed = false
-        end
+        entries = daily_data.entries
     end
 
     # Generate human-readable report
-    report_text = generate_daily_report(date_str, tasks)
+    report_text = generate_daily_report(daily_data)
 
     if (llm_summary === true)
         println("Generating LLM summary...")

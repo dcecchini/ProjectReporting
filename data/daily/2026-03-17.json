@@ -1,0 +1,79 @@
+{
+  "entries": [
+    {
+      "member": { "name": "David C" },
+      "tasks": [
+        { "blocker": null, "allocation": "project_client", "execution_state": "active", "tags": [], "description": "Everygene Modeling" },
+        { "blocker": null, "allocation": "core", "execution_state": "active", "tags": [], "description": "project management" }
+      ]
+    },
+    {
+      "member": { "name": "Rakshit" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_ingestion", "execution_state": "active", "tags": [], "description": "C-CDA to FHIR parsing" },
+        { "blocker": null, "allocation": "core_ingestion", "execution_state": "active", "tags": [], "description": "FHIR ingestion" },
+        { "blocker": null, "allocation": "core_provenance", "execution_state": "active", "tags": [], "description": "FHIR provenance" },
+        { "blocker": null, "allocation": "core_ingestion", "execution_state": "active", "tags": [], "description": "ingestion of big files fixes" }
+      ]
+    },
+    {
+      "member": { "name": "Bunyamin" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_provenance", "execution_state": "active", "tags": [], "description": "provenance analysis" }
+      ]
+    },
+    {
+      "member": { "name": "Aleksei" },
+      "tasks": [
+        { "blocker": null, "allocation": "external_client", "execution_state": "active", "tags": [], "description": "Client Projects" },
+        { "blocker": null, "allocation": "external_inhouse", "execution_state": "active", "tags": [], "description": "GenAI Lab" },
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "assertion status code search evaluation" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "synthetic data generation evaluation" }
+      ]
+    },
+    {
+      "member": { "name": "Galip" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "PDF ingestion review" }
+      ]
+    },
+    {
+      "member": { "name": "Abhinav" },
+      "tasks": [
+        { "blocker": null, "allocation": "project_client", "execution_state": "active", "tags": [], "description": "Fred Hutch" },
+        { "blocker": null, "allocation": "core_omop", "execution_state": "active", "tags": [], "description": "EHR to OMOP ETL modeling" }
+      ]
+    },
+    {
+      "member": { "name": "Abdul" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "DCS development" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "querybot behavior based on confidence" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "querybot testing" }
+      ]
+    },
+    {
+      "member": { "name": "Cabir" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "merger step review" },
+        { "blocker": null, "allocation": "external_client", "execution_state": "active", "tags": [], "description": "customer POC" }
+      ]
+    },
+    {
+      "member": { "name": "Resul" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "Data Curation improvements" },
+        { "blocker": null, "allocation": "core_genai", "execution_state": "active", "tags": [], "description": "custom NLP pipeline integration" }
+      ]
+    },
+    {
+      "member": { "name": "Mehmet" },
+      "tasks": [
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "measurements review" },
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "easyocr vs tesseract cpu comparison" },
+        { "blocker": null, "allocation": "core_nlp", "execution_state": "active", "tags": [], "description": "section header concept mapping" }
+      ]
+    }
+  ],
+  "date": "2026-03-17"
+}

@@ -5,10 +5,10 @@ Pkg.activate(joinpath(@__DIR__, ".."))  # Activate project environment
 
 using Dates
 using ArgParse
-using SimpleProjectReporting
-using SimpleProjectReporting.Monthly
-using SimpleProjectReporting.Config
-using SimpleProjectReporting.LLMSummarizer
+using ProjectReporting
+using ProjectReporting.Monthly
+using ProjectReporting.Config
+using ProjectReporting.LLMSummarizer
 
 
 # -----------------------------

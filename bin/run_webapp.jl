@@ -1,16 +1,34 @@
 #!/usr/bin/env julia
-using Genie, Stipple, StippleUI
-using SimpleProjectReporting.Config
-using SimpleProjectReporting.webapp.AppModel
-using SimpleProjectReporting.webapp.Backend
-using SimpleProjectReporting.webapp.UI
 
-Config.ensure_directories()
+using Pkg
+Pkg.activate(joinpath(@__DIR__, ".."))
 
-model = AppModel.AppModel()
+using ArgParse
+using ProjectReporting
+include("../webapp/App.jl")
+using .App
 
-Backend.load_daily!(model)
-Backend.update_weekly_metrics!(model)
-Backend.update_monthly_metrics!(model)
+function main()
+    s = ArgParseSettings()
+    @add_arg_table! s begin
+        "--host"
+            help = "Host interface to bind"
+            arg_type = String
+            default = "127.0.0.1"
 
-Stipple.run(model, UI.build_ui(model); host="127.0.0.1", port=8000)
+        "--port"
+            help = "Port to listen on"
+            arg_type = Int
+            default = 8000
+    end
+
+    args = parse_args(s)
+
+    host = args["host"]
+    port = args["port"]
+
+    println("Starting Genie app on $host:$port ...")
+    App.serve(host=host, port=port)
+end
+
+main()

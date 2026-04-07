@@ -217,7 +217,7 @@ function build_weekly_prompt(week_str::String, data::WeeklyData, metrics::Vector
     push!(prompt_lines, "Metrics report:")
     push!(prompt_lines, report_text)
     push!(prompt_lines, "")
-    push!(prompt_lines, "Write a concise 3-6 sentence summary: achievements, key risks/blockers inferred from metrics, and notable priority drift/unplanned work.")
+    push!(prompt_lines, "Write a concise 3-6 sentence summary: achievements, key risks/blockeds inferred from metrics, and notable priority drift/unplanned work.")
     return join(prompt_lines, "\n")
 end
 

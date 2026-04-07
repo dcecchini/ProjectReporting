@@ -1,0 +1,155 @@
+{
+  "entries": [
+    {
+      "member": {
+        "name": "David C"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Everygene Modeling; project management"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Rakshit"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "C-CDA to FHIR parsing; FHIR ingestion; FHIR provenance; ingestion of big files fixes"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Bunyamin"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "provenance analysis"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Aleksei"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Client Projects; GenAI Lab; assertion status code search evaluation; synthetic data generation evaluation"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Galip"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "PDF ingestion review "
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Abhinav"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Fred Hutch; EHR to OMOP ETL modeling"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Abdul"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "DCS development; querybot behavior based on confidence; querybot testing"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Cabir"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "merger step review; customer POC"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Resul"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Data Curation improvements; custom NLP pipeline integration"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Mehmet"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "measurements review; easyocr vs tesseract cpu comparison; section header concept mapping"
+        }
+      ]
+    }
+  ],
+  "date": "2026-03-17"
+}

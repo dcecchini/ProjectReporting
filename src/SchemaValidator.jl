@@ -28,13 +28,13 @@ function validate_json_file(file_path::AbstractString, schema_type::AbstractStri
     data = JSON3.read(open(file_path, "r"), Dict)
 
     # Validate
-    isvalid = JSONSchema.validate(schema, data)
-    if !isvalid
-        errors = JSONSchema.validate!(schema, data)
-        error("JSON validation failed for $file_path under $schema_type schema:\n$errors")
+    # JSONSchema.validate can return `nothing` (meaning valid) depending on package version.
+    result = JSONSchema.validate(schema, data)
+    if result === nothing || result === true
+        return data
     end
 
-    return data
+    error("JSON validation failed for $file_path under $schema_type schema:\n$result")
 end
 
 # ----------------------------

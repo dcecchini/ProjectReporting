@@ -4,10 +4,10 @@ using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
 
 using ArgParse
-using SimpleProjectReporting
-using SimpleProjectReporting.Weekly
-using SimpleProjectReporting.Config
-using SimpleProjectReporting.LLMSummarizer
+using ProjectReporting
+using ProjectReporting.Weekly
+using ProjectReporting.Config
+using ProjectReporting.LLMSummarizer
 
 # -----------------------------
 # Main Execution

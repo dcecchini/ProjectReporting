@@ -10,24 +10,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["goal_id", "description", "owners", "status"],
+        "required": ["goal_id", "goal_description", "priority", "completed", "workstream"],
         "properties": {
           "goal_id": { "type": "string" },
-          "description": { "type": "string" },
-          "owners": {
-            "type": "array",
-            "items": { "type": "string" },
-            "minItems": 1
-          },
-          "acceptance_criteria": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "jira": { "type": ["string", "null"] },
-          "status": {
-            "type": "string",
-            "enum": ["not_started", "in_progress", "achieved", "partially_achieved", "not_achieved", "blocked", "deferred"]
-          }
+          "goal_description": { "type": "string" },
+          "priority": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+          "completed": { "type": "boolean" },
+          "workstream": { "type": "string" }
         }
       }
     }

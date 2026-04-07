@@ -1,0 +1,155 @@
+{
+  "entries": [
+    {
+      "member": {
+        "name": "David C"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "client",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Everygene; Heartgene; TPJ management"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Rakshit"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "outside_internal",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "GenAI Lab support; Terminology Server support; Client Support"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Bunyamin"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "provenance testing"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Aleksei"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "outside_client",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Client Projects"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Galip"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "PDF ingestion review; table detection with docling testing; table extraction with docling testing"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Abhinav"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "client",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Fred Hutch"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Abdul"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "DCS development; querybot testing; internal model review; demo server development"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Cabir"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "merger step improvement"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Resul"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "Data Curation improvements; custom NLP pipeline integration"
+        }
+      ]
+    },
+    {
+      "member": {
+        "name": "Mehmet"
+      },
+      "tasks": [
+        {
+          "blocker": null,
+          "allocation": "core",
+          "execution_state": "active",
+          "tags": [
+          ],
+          "description": "measurements review; easyocr vs tesseract cpu comparison; section header concept mapping; document ingestion review"
+        }
+      ]
+    }
+  ],
+  "date": "2026-03-19"
+}
