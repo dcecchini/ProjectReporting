@@ -11,7 +11,9 @@ include("Core/daily_model.jl")
 # include("LLMSummarizer.jl")
 include("utils/diff.jl")
 include("Services/daily_service.jl")
+include("Services/team_service.jl")
 include("Services/weekly_goals_service.jl")
+include("Services/weekly_report_service.jl")
 include("Services/report_service.jl")
 include("Services/teams_service.jl")
 
@@ -26,7 +28,9 @@ using .DailyModel
 # using .Monthly
 # using .LLMSummarizer
 using .DailyService
+using .TeamService
 using .WeeklyGoalsService
+using .WeeklyReportService
 using .DiffUtils
 using .ReportService
 using .TeamsService

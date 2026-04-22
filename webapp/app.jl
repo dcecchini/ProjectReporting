@@ -12,6 +12,7 @@ using ProjectReporting.LoggingConfig
 using ProjectReporting.TeamsService
 using ProjectReporting.ReportService
 using ProjectReporting.WeeklyGoalsService
+using ProjectReporting.TeamService
 
 include("ui.jl")
 using .UI
@@ -59,6 +60,52 @@ function get_array_param(p, name)
     return get(p, Symbol(name * "[]"), nothing)
 end
 
+function merge_members_with_roster(members_vm::Vector{UI.MemberVM})::Vector{UI.MemberVM}
+    roster = TeamService.load_team_roster()
+    roster_names = [m.name for m in roster.members]
+
+    by_name = Dict(m.name => m for m in members_vm)
+
+    result = UI.MemberVM[]
+
+    # 1) Roster members first (active + inactive) with metadata
+    for rm in roster.members
+        if haskey(by_name, rm.name)
+            m = by_name[rm.name]
+            push!(result, UI.MemberVM(
+                name = m.name,
+                capacity = rm.capacity,
+                active = rm.active ? "true" : "false",
+                note = rm.note,
+                tasks = m.tasks
+            ))
+        else
+            push!(result, UI.MemberVM(
+                name = rm.name,
+                capacity = rm.capacity,
+                active = rm.active ? "true" : "false",
+                note = rm.note,
+                tasks = UI.TaskVM[]
+            ))
+        end
+    end
+
+    # 2) Any historical members not in roster, appended (kept readable)
+    for m in members_vm
+        if !(m.name in roster_names)
+            push!(result, UI.MemberVM(
+                name = m.name,
+                capacity = m.capacity,
+                active = m.active,
+                note = m.note,
+                tasks = m.tasks
+            ))
+        end
+    end
+
+    return result
+end
+
 # -----------------------------------------
 # Helper: parse entries from form
 # -----------------------------------------
@@ -95,13 +142,102 @@ function parse_entries(p)
     ]
 end
 
+function ui_home()
+    [
+        h1("Project Reporting Tool - {{project_name}}"),
+        h2("Home"),
+
+        card(class="q-pa-md q-mt-md", [
+            h3("Pages"),
+            row(class="items-center q-gutter-sm", [
+                Html.a("Daily", href="/daily", class="text-primary"),
+                Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
+                Html.a("Team", href="/team", class="text-primary")
+            ])
+        ])
+    ]
+end
+
+function ui_team()
+    [
+        h1("Project Reporting Tool - {{project_name}}"),
+        h2("Team Management"),
+
+        row(class="items-center q-gutter-sm q-mb-md", [
+            Html.a("Daily", href="/daily", class="text-primary"),
+            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary")
+        ]),
+
+        row(class="items-center q-gutter-sm q-mb-md", [
+            btn("Load", @click(:load_team_roster), color="primary"),
+            btn("Save", @click(:save_team_roster), color="primary")
+        ]),
+
+        row(class="items-center q-gutter-sm q-mb-md", [
+            textfield("New member name", :new_team_member_name, dense=true, outlined=true),
+            btn("Add Member", @click(:add_team_member), color="secondary")
+        ]),
+
+        card(class="q-pa-md q-mb-md", [
+            h3("Active Members"),
+            p("No active members.", @showif("team_roster.length === 0 || !team_roster.some(m => m.active === 'true')"), class="text-grey"),
+            Html.table(class="q-table q-table--flat q-table--bordered q-table--dense", [
+                Html.thead([
+                    Html.tr([
+                        Html.th("Name"),
+                        Html.th("Capacity (%)"),
+                        Html.th("Active"),
+                        Html.th("Note"),
+                        Html.th("")
+                    ])
+                ]),
+                Html.tbody([
+                    Html.tr(@recur(:"(m, mi) in team_roster"), @showif("m.active === 'true'"), [
+                        Html.td([textfield("", R"m.name", dense=true, borderless=true)]),
+                        Html.td([textfield("", R"m.capacity", dense=true, borderless=true, type="number")]),
+                        Html.td([Stipple.select(R"m.active", options=["true", "false"], dense=true, borderless=true)]),
+                        Html.td([textfield("", R"m.note", dense=true, borderless=true)]),
+                        Html.td([btn("", icon="delete", @click("delete_team_member_index = mi + 1"), color="negative", flat=true, round=true, size="sm")])
+                    ])
+                ])
+            ])
+        ]),
+
+        card(class="q-pa-md", [
+            h3("Inactive / OOO / Other Projects"),
+            p("No inactive members.", @showif("team_roster.length === 0 || !team_roster.some(m => m.active === 'false')"), class="text-grey"),
+            Html.table(class="q-table q-table--flat q-table--bordered q-table--dense", [
+                Html.thead([
+                    Html.tr([
+                        Html.th("Name"),
+                        Html.th("Capacity (%)"),
+                        Html.th("Active"),
+                        Html.th("Note"),
+                        Html.th("")
+                    ])
+                ]),
+                Html.tbody([
+                    Html.tr(@recur(:"(m, mi) in team_roster"), @showif("m.active === 'false'"), [
+                        Html.td([textfield("", R"m.name", dense=true, borderless=true)]),
+                        Html.td([textfield("", R"m.capacity", dense=true, borderless=true, type="number")]),
+                        Html.td([Stipple.select(R"m.active", options=["true", "false"], dense=true, borderless=true)]),
+                        Html.td([textfield("", R"m.note", dense=true, borderless=true)]),
+                        Html.td([btn("", icon="delete", @click("delete_team_member_index = mi + 1"), color="negative", flat=true, round=true, size="sm")])
+                    ])
+                ])
+            ])
+        ])
+    ]
+end
+
 function ui_weekly_goals()
     [
         h1("Project Reporting Tool - {{project_name}}"),
         h2("Weekly Goals"),
 
         row(class="items-center q-gutter-sm q-mb-md", [
-            Html.a("Daily", href="/daily", class="text-primary")
+            Html.a("Daily", href="/daily", class="text-primary"),
+            Html.a("Team", href="/team", class="text-primary")
         ]),
 
         row(class="items-center q-gutter-sm q-mb-md", [
@@ -136,6 +272,9 @@ function to_vm(data::DailyData)
     UI.MemberVM[
         UI.MemberVM(
             name = e.member.name,
+            capacity = 100,
+            active = "true",
+            note = "",
             tasks = [
                 UI.TaskVM(
                     goal_id = something(t.goal_id, ""),
@@ -246,7 +385,15 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     @out allocation_options::Vector{String} = ALLOCATION_OPTIONS
     @out execution_state_options::Vector{String} = EXECUTION_STATE_OPTIONS
     @out allocation_labels::Dict{String, String} = ALLOCATION_LABELS_MAP
-    @out team_members::Vector{String} = Config.TEAM_MEMBERS
+    @out team_members::Vector{String} = [m.name for m in TeamService.load_team_roster().members]
+
+    # Team roster
+    @in team_roster::Vector{UI.TeamRosterMemberVM} = UI.TeamRosterMemberVM[]
+    @in load_team_roster::Bool = false
+    @in save_team_roster::Bool = false
+    @in new_team_member_name::String = ""
+    @in add_team_member::Bool = false
+    @in delete_team_member_index::Int = 0
     
     # Button triggers
     @in add_task::Int = 0
@@ -264,25 +411,35 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     # -----------------------------
     @onchange isready begin
         @info "Loading data for date: $date"
-        data = DailyService.get_or_create_daily(date, Config.TEAM_MEMBERS)
+        team_members = [m.name for m in TeamService.load_team_roster().members]
+        data = DailyService.get_or_create_daily(date, team_members)
         @info "Loaded $(length(data.entries)) entries"
         members = to_vm(data)
+        members = merge_members_with_roster(members)
         @info "Converted to $(length(members)) members"
         @push members
         grouped = compute_grouping(members)
         @push grouped
 
         weekly_goal_options = weekly_goal_options_for_date(date)
-        @push weekly_goal_options
 
         workstream_options = WeeklyGoalsService.load_workstreams()
-        @push workstream_options
+
+        roster = TeamService.load_team_roster()
+        team_roster = UI.TeamRosterMemberVM[
+            UI.TeamRosterMemberVM(
+                name = m.name,
+                capacity = m.capacity,
+                active = m.active ? "true" : "false",
+                note = m.note
+            )
+            for m in roster.members
+        ]
     end
 
     @onchange date begin
         try
             weekly_goal_options = weekly_goal_options_for_date(date)
-            @push weekly_goal_options
         catch e
             @error "[WeeklyGoals] Failed to refresh options for date" date=date exception=(e, catch_backtrace())
         end
@@ -323,9 +480,11 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     # -----------------------------
     @onbutton load begin
         @info "Loading data for date: $date"
-        data = DailyService.get_or_create_daily(date, Config.TEAM_MEMBERS)
+        team_members = [m.name for m in TeamService.load_team_roster().members]
+        data = DailyService.get_or_create_daily(date, team_members)
         @info "Loaded $(length(data.entries)) entries"
         members = to_vm(data)
+        members = merge_members_with_roster(members)
         grouped = compute_grouping(members)
         preview = ""
         @push members
@@ -333,7 +492,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
         @push preview
 
         weekly_goal_options = weekly_goal_options_for_date(date)
-        @push weekly_goal_options
     end
 
     # -----------------------------
@@ -341,13 +499,15 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     # -----------------------------
     @onbutton load_previous begin
         @info "Loading previous day tasks for date: $date"
+        team_members = [m.name for m in TeamService.load_team_roster().members]
         data = DailyService.get_previous_data(
             Date(date),
             Config.DAILY_DATA_DIR,
-            Config.TEAM_MEMBERS
+            team_members
         )
         @info "Loaded $(length(data.entries)) entries"
         members = to_vm(data)
+        members = merge_members_with_roster(members)
         grouped = compute_grouping(members)
         preview = ""
         @push members
@@ -355,7 +515,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
         @push preview
 
         weekly_goal_options = weekly_goal_options_for_date(date)
-        @push weekly_goal_options
     end
 
     # -----------------------------
@@ -375,10 +534,11 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
             entries = from_vm(members)
             @info "[Generate] Converted $(length(entries)) entries"
 
+            team_members = [m.name for m in members]
             prev = DailyService.get_previous_data(
                 Date(date),
                 Config.DAILY_DATA_DIR,
-                Config.TEAM_MEMBERS
+                team_members
             )
             @info "[Generate] Previous data: $(length(prev.entries)) entries"
 
@@ -407,10 +567,11 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
             entries = from_vm(members)
             @info "[Send] Converted $(length(entries)) entries"
 
+            team_members = [m.name for m in members]
             prev = DailyService.get_previous_data(
                 Date(date),
                 Config.DAILY_DATA_DIR,
-                Config.TEAM_MEMBERS
+                team_members
             )
             @info "[Send] Previous data: $(length(prev.entries)) entries"
 
@@ -437,7 +598,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
             data = WeeklyGoalsService.load_weekly_goals_data(selected_week)
 
             workstream_options = WeeklyGoalsService.load_workstreams()
-            @push workstream_options
 
             weekly_goals = UI.WeeklyGoalVM[
                 UI.WeeklyGoalVM(
@@ -449,11 +609,9 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
                 )
                 for g in data.goals
             ]
-            @push weekly_goals
 
             if Config.iso_week_string(Date(date)) == selected_week
                 weekly_goal_options = weekly_goal_options_for_date(date)
-                @push weekly_goal_options
             end
         catch e
             @error "[WeeklyGoals] Load error" exception=(e, catch_backtrace())
@@ -481,7 +639,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
 
             if Config.iso_week_string(Date(date)) == selected_week
                 weekly_goal_options = weekly_goal_options_for_date(date)
-                @push weekly_goal_options
             end
         catch e
             @error "[WeeklyGoals] Save error" exception=(e, catch_backtrace())
@@ -495,7 +652,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
         try
             workstream_options = WeeklyGoalsService.add_workstream(new_workstream)
             new_workstream = ""
-            @push workstream_options
             @push new_workstream
         catch e
             @error "[WeeklyGoals] Add workstream error" exception=(e, catch_backtrace())
@@ -513,7 +669,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
                 workstream = ws_default
             ))
             weekly_goals = copy(weekly_goals)
-            @push weekly_goals
         catch e
             @error "[WeeklyGoals] Add error" exception=(e, catch_backtrace())
         end
@@ -528,9 +683,86 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
                 deleteat!(weekly_goals, delete_weekly_goal_index)
                 weekly_goals = copy(weekly_goals)
                 delete_weekly_goal_index = 0
-                @push weekly_goals
             catch e
                 @error "[WeeklyGoals] Delete error" exception=(e, catch_backtrace())
+            end
+        end
+    end
+
+    # -----------------------------
+    # TEAM ROSTER - LOAD
+    # -----------------------------
+    @onbutton load_team_roster begin
+        try
+            roster = TeamService.load_team_roster()
+            team_roster = UI.TeamRosterMemberVM[
+                UI.TeamRosterMemberVM(
+                    name = m.name,
+                    capacity = m.capacity,
+                    active = m.active ? "true" : "false",
+                    note = m.note
+                )
+                for m in roster.members
+            ]
+        catch e
+            @error "[Team] Load roster error" exception=(e, catch_backtrace())
+        end
+    end
+
+    # -----------------------------
+    # TEAM ROSTER - SAVE
+    # -----------------------------
+    @onbutton save_team_roster begin
+        try
+            members_data = TeamService.TeamRosterMember[
+                TeamService.TeamRosterMember(
+                    String(r.name),
+                    Int(r.capacity),
+                    lowercase(strip(r.active)) == "true",
+                    String(r.note)
+                )
+                for r in team_roster
+                if !isempty(strip(r.name))
+            ]
+            data = TeamService.TeamRosterData(1, members_data)
+            TeamService.save_team_roster(data)
+
+            team_members = [m.name for m in TeamService.load_team_roster().members]
+            members = merge_members_with_roster(members)
+            grouped = compute_grouping(members)
+        catch e
+            @error "[Team] Save roster error" exception=(e, catch_backtrace())
+        end
+    end
+
+    # -----------------------------
+    # TEAM ROSTER - ADD
+    # -----------------------------
+    @onbutton add_team_member begin
+        try
+            name = strip(new_team_member_name)
+            if !isempty(name)
+                push!(team_roster, UI.TeamRosterMemberVM(name=name, capacity=100, active="true", note=""))
+                team_roster = copy(team_roster)
+                new_team_member_name = ""
+                @push new_team_member_name
+            end
+        catch e
+            @error "[Team] Add member error" exception=(e, catch_backtrace())
+        end
+    end
+
+    # -----------------------------
+    # TEAM ROSTER - DELETE
+    # -----------------------------
+    @onchange delete_team_member_index begin
+        if delete_team_member_index > 0
+            try
+                deleteat!(team_roster, delete_team_member_index)
+                team_roster = copy(team_roster)
+                delete_team_member_index = 0
+            catch e
+                @error "[Team] Delete member error" exception=(e, catch_backtrace())
             end
         end
     end
@@ -545,7 +777,8 @@ function ui()
         h2("{{date}} Tasks"),
 
         row(class="items-center q-gutter-sm q-mb-md", [
-            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary")
+            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
+            Html.a("Team", href="/team", class="text-primary")
         ]),
 
         row(class="items-center q-gutter-sm q-mb-md", [
@@ -617,7 +850,8 @@ function ui()
             
             card(class="q-mb-md", @recur(:"(m, mIndex) in members"), [
                 card_section([
-                    h3("{{m.name}}")
+                    h3("{{m.name}}"),
+                    p("{{m.active === 'true' ? 'Active' : 'Inactive'}} — {{m.capacity}}% {{m.note}}", class="text-grey")
                 ]),
                 card_section([
                     Html.div(class="row items-center q-gutter-sm q-mb-sm", @recur(:"(t, tIndex) in m.tasks"), [
@@ -671,5 +905,9 @@ end
 @page("/daily", ui)
 
 @page("/weekly_goals", ui_weekly_goals)
+
+@page("/team", ui_team)
+
+@page("/", ui_home)
 
 Genie.up()

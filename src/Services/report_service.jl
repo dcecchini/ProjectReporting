@@ -181,7 +181,14 @@ function render_text_report(report::Report)
         push!(lines, "⚠ Blockers")
 
         for t in report.blockers
-            push!(lines, "  ⚠ $(t.description) [$(t.member)]")
+            parts = filter(!isempty, strip.(split(t.description, ';')))
+            if isempty(parts)
+                push!(lines, "  ⚠ $(t.description) [$(t.member)]")
+            else
+                for p in parts
+                    push!(lines, "  ⚠ $(p) [$(t.member)]")
+                end
+            end
         end
 
         push!(lines, "")
@@ -201,7 +208,14 @@ function render_text_report(report::Report)
                 t.status == :completed ? "✅" :
                 "•"
 
-            push!(lines, "  $prefix $(t.description) [$(t.member)]")
+            parts = filter(!isempty, strip.(split(t.description, ';')))
+            if isempty(parts)
+                push!(lines, "  $prefix $(t.description) [$(t.member)]")
+            else
+                for p in parts
+                    push!(lines, "  $prefix $(p) [$(t.member)]")
+                end
+            end
         end
 
         push!(lines, "")

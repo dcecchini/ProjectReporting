@@ -93,16 +93,16 @@ function list_dates()
     return sort(Date.(replace.(files, ".json" => "")))
 end
 
-function load_last_available()
+function load_last_available(team_members::Vector{String}=Config.TEAM_MEMBERS)
     files = filter(f -> endswith(f, ".json"), readdir(Config.DAILY_DATA_DIR))
 
-    isempty(files) && return empty_daily_data(today())
+    isempty(files) && return empty_daily_data(today(), team_members)
 
     dates = sort(Date.(replace.(files, ".json" => "")))
 
     last_date = dates[end]
 
-    return get_or_create_daily(string(last_date), Config.TEAM_MEMBERS)
+    return get_or_create_daily(string(last_date), team_members)
 end
 
 # -----------------------------------------
