@@ -9,9 +9,9 @@ export validate_json_file, load_daily, load_weekly_goals, load_weekly_review
 # Paths to schemas
 # ----------------------------
 const SCHEMA_PATHS = Dict(
-    "daily" => "schema/daily_schema.json",
-    "weekly_goals" => "schema/weekly_goals_schema.json",
-    "weekly_review" => "schema/weekly_reviews_schema.json"
+    "daily"        => normpath(joinpath(@__DIR__, "..", "schema", "daily_schema.json")),
+    "weekly_goals" => normpath(joinpath(@__DIR__, "..", "schema", "weekly_goals_schema.json")),
+    "weekly_review" => normpath(joinpath(@__DIR__, "..", "schema", "weekly_reviews_schema.json"))
 )
 
 # ----------------------------

@@ -13,6 +13,7 @@ using ProjectReporting.TeamsService
 using ProjectReporting.ReportService
 using ProjectReporting.WeeklyGoalsService
 using ProjectReporting.TeamService
+using ProjectReporting.LLMGoalAssistant
 
 include("ui.jl")
 using .UI
@@ -152,6 +153,7 @@ function ui_home()
             row(class="items-center q-gutter-sm", [
                 Html.a("Daily", href="/daily", class="text-primary"),
                 Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
+                Html.a("Goals Assistant", href="/weekly_goals_assistant", class="text-primary"),
                 Html.a("Team", href="/team", class="text-primary")
             ])
         ])
@@ -405,6 +407,16 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     @in save::Bool = false
     @in generate::Bool = false
     @in send::Bool = false
+
+    # Goal Assistant
+    @in target_week_assistant::String = Config.iso_week_string(today() + Week(1))
+    @in suggested_goals::Vector{UI.WeeklyGoalVM} = UI.WeeklyGoalVM[]
+    @in suggest::Bool = false
+    @in save_suggested::Bool = false
+    @out suggestion_status::String = ""
+    @out context_summary::String = ""
+    @in delete_suggested_index::Int = 0
+    @in add_suggested_goal::Bool = false
 
     # -----------------------------
     # INIT
@@ -766,6 +778,92 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
             end
         end
     end
+
+    # -----------------------------
+    # GOAL ASSISTANT - SUGGEST
+    # -----------------------------
+    @onbutton suggest begin
+        try
+            suggestion_status = "⏳ Gathering context and calling LLM..."
+            @push suggestion_status
+            goals, summary = LLMGoalAssistant.suggest_weekly_goals(target_week_assistant)
+            context_summary = summary
+            suggested_goals = UI.WeeklyGoalVM[
+                UI.WeeklyGoalVM(
+                    goal_id          = g.goal_id,
+                    goal_description = g.goal_description,
+                    priority         = g.priority,
+                    completed        = "false",
+                    workstream       = g.workstream
+                )
+                for g in goals
+            ]
+            workstream_options = WeeklyGoalsService.load_workstreams()
+            suggestion_status = "✅ $(length(goals)) goal(s) suggested. Review and edit below, then save."
+        catch e
+            @error "[Assistant] Suggest error" exception=(e, catch_backtrace())
+            suggestion_status = "❌ Error: $(sprint(showerror, e))"
+        end
+    end
+
+    # -----------------------------
+    # GOAL ASSISTANT - ADD GOAL
+    # -----------------------------
+    @onbutton add_suggested_goal begin
+        try
+            ws_default = isempty(workstream_options) ? "" : workstream_options[1]
+            push!(suggested_goals, UI.WeeklyGoalVM(
+                goal_id   = next_weekly_goal_id(suggested_goals),
+                workstream = ws_default
+            ))
+            suggested_goals = copy(suggested_goals)
+        catch e
+            @error "[Assistant] Add goal error" exception=(e, catch_backtrace())
+        end
+    end
+
+    # -----------------------------
+    # GOAL ASSISTANT - DELETE GOAL
+    # -----------------------------
+    @onchange delete_suggested_index begin
+        if delete_suggested_index > 0
+            try
+                deleteat!(suggested_goals, delete_suggested_index)
+                suggested_goals = copy(suggested_goals)
+                delete_suggested_index = 0
+            catch e
+                @error "[Assistant] Delete goal error" exception=(e, catch_backtrace())
+            end
+        end
+    end
+
+    # -----------------------------
+    # GOAL ASSISTANT - SAVE
+    # -----------------------------
+    @onbutton save_suggested begin
+        try
+            goals = WeeklyGoalsService.WeeklyGoal[
+                WeeklyGoalsService.WeeklyGoal(
+                    goal_id          = g.goal_id,
+                    goal_description = g.goal_description,
+                    priority         = Int(g.priority),
+                    completed        = lowercase(strip(g.completed)) == "true",
+                    workstream       = g.workstream
+                )
+                for g in suggested_goals
+            ]
+            for g in goals
+                WeeklyGoalsService.add_workstream(g.workstream)
+            end
+            workstream_options = WeeklyGoalsService.load_workstreams()
+            data = WeeklyGoalsService.WeeklyGoalsData(1, target_week_assistant, goals)
+            WeeklyGoalsService.save_weekly_goals_data(data)
+            suggestion_status = "✅ Goals saved for $(target_week_assistant). View them on the Weekly Goals page."
+        catch e
+            @error "[Assistant] Save error" exception=(e, catch_backtrace())
+            suggestion_status = "❌ Error saving: $(sprint(showerror, e))"
+        end
+    end
 end
 
 # -----------------------------
@@ -902,9 +1000,66 @@ function ui()
     ]
 end
 
+function ui_weekly_goals_assistant()
+    [
+        h1("Project Reporting Tool - {{project_name}}"),
+        h2("Weekly Goals Assistant"),
+
+        row(class="items-center q-gutter-sm q-mb-md", [
+            Html.a("Daily", href="/daily", class="text-primary"),
+            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
+            Html.a("Team", href="/team", class="text-primary")
+        ]),
+
+        card(class="q-pa-md q-mb-md", [
+            h3("Generate Goals with AI"),
+            row(class="items-center q-gutter-sm q-mb-sm", [
+                textfield("Target Week (YYYY-WNN)", :target_week_assistant, dense=true, outlined=true),
+                btn("Suggest Goals", @click(:suggest), color="primary")
+            ]),
+            p("{{suggestion_status}}",
+                @showif("suggestion_status && suggestion_status.length > 0"),
+                class="q-mt-sm"),
+            card(class="q-pa-sm q-mt-sm bg-grey-1",
+                @showif("context_summary && context_summary.length > 0"), [
+                p("Context used:", class="text-weight-bold"),
+                Html.pre("{{context_summary}}", style="font-size:0.85em; white-space:pre-wrap;")
+            ])
+        ]),
+
+        card(class="q-pa-md", @showif("suggested_goals.length > 0"), [
+            row(class="items-center q-gutter-sm q-mb-md", [
+                h3("Suggested Goals"),
+                btn("+ Goal", @click(:add_suggested_goal), color="secondary", size="sm"),
+                btn("Save to Weekly Goals", @click(:save_suggested), color="primary")
+            ]),
+            Html.div(@recur(:"(g, gi) in suggested_goals"), [
+                Html.div(class="row items-center q-gutter-sm q-mb-sm", [
+                    Html.div(class="col-2",
+                        [textfield("Goal ID", R"g.goal_id", dense=true, outlined=true)]),
+                    Html.div(class="col-4",
+                        [textfield("Description", R"g.goal_description", dense=true, outlined=true)]),
+                    Html.div(class="col-2",
+                        [textfield("Workstream", R"g.workstream", dense=true, outlined=true)]),
+                    Html.div(class="col-1",
+                        [textfield("Priority", R"g.priority", dense=true, outlined=true, type="number")]),
+                    Html.div(class="col-1",
+                        [Stipple.select(R"g.completed", options=["false", "true"], dense=true, outlined=true, label="Done")]),
+                    Html.div(class="col-1",
+                        [btn("", icon="delete",
+                            @click("delete_suggested_index = gi + 1"),
+                            color="negative", flat=true, round=true, size="sm")])
+                ])
+            ])
+        ])
+    ]
+end
+
 @page("/daily", ui)
 
 @page("/weekly_goals", ui_weekly_goals)
+
+@page("/weekly_goals_assistant", ui_weekly_goals_assistant)
 
 @page("/team", ui_team)
 

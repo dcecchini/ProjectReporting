@@ -58,11 +58,7 @@ function from_dict(::Type{TeamRosterData}, d)
 end
 
 function default_team_roster()::TeamRosterData
-    members = TeamRosterMember[
-        TeamRosterMember(name, 100, true, "")
-        for name in Config.TEAM_MEMBERS
-    ]
-    return TeamRosterData(1, members)
+    return TeamRosterData(1, TeamRosterMember[])
 end
 
 function load_team_roster()::TeamRosterData

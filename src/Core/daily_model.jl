@@ -19,7 +19,7 @@ end
 Creates an empty daily entry for a member.
 """
 function empty_entry(member::String)::DailyEntry
-    DailyEntry(member, Task[], String[])
+    DailyEntry(TeamMember(member), Task[])
 end
 
 
@@ -56,7 +56,7 @@ end
 
 DailyData(date::String, entries::Vector{DailyEntry}; dateformat::DateFormat = dateformat"yyyy-mm-dd") = DailyData(Date(date, dateformat), entries)
 
-function empty_daily_data(date::Date, team_members::Vector{String}=Config.TEAM_MEMBERS)::DailyData
+function empty_daily_data(date::Date, team_members::Vector{String})::DailyData
     entries = [
         empty_entry(member)
         for member in team_members

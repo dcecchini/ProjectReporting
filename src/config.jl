@@ -56,25 +56,6 @@ const MONTHLY_REPORTS_DIR  = joinpath(REPORTS_DIR, "monthly")
 
 
 # ------------------------------------------------------------
-# Team Configuration
-# ------------------------------------------------------------
-# TODO: Load this from a config file or environment variable
-
-const TEAM_MEMBERS = [
-    "Abdul",
-    "Abhinav",
-    "Aleksei",
-    "Bunyamin",
-    "Cabir",
-    "Galip",
-    "Mehmet",
-    "Rakshit",
-    "Resul",
-    "David C"
-]
-
-
-# ------------------------------------------------------------
 # Secrets from environment variables
 # ------------------------------------------------------------
 
