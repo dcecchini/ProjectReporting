@@ -15,6 +15,23 @@ using ..LLMSummarizer
 
 export suggest_weekly_goals, build_context_summary
 
+# JSON schema passed to Ollama `format` field for structured output
+const GOALS_JSON_SCHEMA = Dict{String,Any}(
+    "type" => "array",
+    "items" => Dict{String,Any}(
+        "type" => "object",
+        "properties" => Dict{String,Any}(
+            "goal_id"          => Dict("type" => "string"),
+            "goal_description" => Dict("type" => "string"),
+            "priority"         => Dict("type" => "integer"),
+            "completed"        => Dict("type" => "boolean"),
+            "workstream"       => Dict("type" => "string")
+        ),
+        "required" => ["goal_id", "goal_description", "priority", "completed", "workstream"],
+        "additionalProperties" => false
+    )
+)
+
 # ---------------------------
 # Context gathering
 # ---------------------------
@@ -140,23 +157,26 @@ function build_prompt(ctx)::String
         push!(lines, "")
     end
 
-    push!(lines, "## Instructions")
-    push!(lines, "- Propose a realistic number of goals based on team capacity and ongoing work.")
-    push!(lines, "- You may introduce new workstreams if they fit the context.")
-    push!(lines, "- Assign priorities 1 (highest) to 5 (lowest).")
-    push!(lines, "- Do NOT assign goals to individual members — assign to workstreams.")
-    push!(lines, "- Return ONLY a valid JSON array. No explanation, no markdown fences, no extra text.")
+    push!(lines, "## Task")
+    push!(lines, "Produce ONLY a JSON array of weekly goals for $(ctx.target_week). Strict rules:")
+    push!(lines, "1. Output ONLY the raw JSON array - no prose, no markdown fences, no comments, no thinking.")
+    push!(lines, "2. Every string value must be properly quoted valid JSON.")
+    push!(lines, "3. Propose a realistic number of goals based on team capacity.")
+    push!(lines, "4. You may introduce new workstreams if they fit the context.")
+    push!(lines, "5. Assign priorities 1 (highest) to 5 (lowest).")
+    push!(lines, "6. Do NOT assign goals to individual members - assign to workstreams.")
     push!(lines, "")
-    push!(lines, """Example output format:
-[
+    push!(lines, "Required output format - exactly these five fields per element:")
+    push!(lines, """[
   {
     "goal_id": "G-001",
-    "goal_description": "Complete feature X and deploy to staging",
+    "goal_description": "Short plain-English description",
     "priority": 1,
     "completed": false,
-    "workstream": "R & D"
+    "workstream": "WorkstreamName"
   }
-]""")
+]
+/no_think""")
 
     return join(lines, "\n")
 end
@@ -165,18 +185,28 @@ end
 # Response parsing
 # ---------------------------
 
+function strip_think_blocks(s::String)::String
+    return replace(s, r"<think>.*?</think>"s => "")
+end
+
 function parse_goals_from_response(response::String)::Vector{WeeklyGoalsService.WeeklyGoal}
-    cleaned = strip(replace(replace(response, r"```[a-z]*" => ""), "```" => ""))
+    @info "[LLMGoalAssistant] Raw response" preview=first(response, 500)
+
+    cleaned = strip_think_blocks(response)
+    cleaned = strip(replace(replace(cleaned, r"```[a-z]*" => ""), "```" => ""))
 
     json_start = findfirst('[', cleaned)
     json_end   = findlast(']', cleaned)
 
     if json_start === nothing || json_end === nothing
-        @error "[LLMGoalAssistant] No JSON array found in LLM response" preview=first(cleaned, 300)
-        error("LLM response did not contain a JSON array. Preview: $(first(cleaned, 200))")
+        @error "[LLMGoalAssistant] No JSON array found in LLM response" preview=first(cleaned, 500)
+        error("LLM response did not contain a JSON array. Preview: $(first(cleaned, 300))")
     end
 
-    arr = JSON3.read(cleaned[json_start:json_end])
+    json_str = cleaned[json_start:json_end]
+    @info "[LLMGoalAssistant] Extracted JSON" preview=first(json_str, 300)
+
+    arr = JSON3.read(json_str)
 
     return [
         WeeklyGoalsService.WeeklyGoal(
@@ -200,7 +230,7 @@ function suggest_weekly_goals(target_week::String)
 
     @info "[LLMGoalAssistant] Sending prompt to LLM" week=target_week prompt_chars=length(prompt)
 
-    response = LLMSummarizer.generate_summary(prompt)
+    response = LLMSummarizer.generate_summary(prompt; think=false, format="json")
 
     @info "[LLMGoalAssistant] Response received" response_chars=length(response)
 

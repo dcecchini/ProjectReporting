@@ -785,7 +785,6 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     @onbutton suggest begin
         try
             suggestion_status = "⏳ Gathering context and calling LLM..."
-            @push suggestion_status
             goals, summary = LLMGoalAssistant.suggest_weekly_goals(target_week_assistant)
             context_summary = summary
             suggested_goals = UI.WeeklyGoalVM[
