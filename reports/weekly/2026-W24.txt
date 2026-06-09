@@ -1,0 +1,49 @@
+WEEKLY REPORT (2026-W24)
+====================
+
+Range: 2026-06-08 to 2026-06-08 (Mon-Fri)
+
+Summary
+-------
+Completed (inferred): 0
+Still active: 21
+Blockers mentioned: 0
+
+Completed tasks
+--------------
+(none)
+
+Still active tasks
+-----------------
+- Adapting US-core to FHIR
+- Client Projects
+- Client projects support
+- Clinical insights
+- Data Curation Studio development
+- FHIR <-> OMOP mapping review
+- FHIR Validation module creation
+- Fred Hutch
+- General testing
+- Ingestion benchmarking against cloud providers (non PJI)
+- Measurement annotations to OMOP review
+- Non-OMOP tables adaptation to querybot
+- OMOP to FHIR
+- PJI Cookbook review
+- Patient Registry development
+- Provenance module review
+- Querybot bug fixing
+- Querybot evaluation
+- Stanford ChatEHR FHIR module review
+- TPJ Project Management
+- Third-party LLM implementation
+
+Blockers
+--------
+(none)
+
+Weekly goals progress
+--------------------
+- [Client Support] CLIENT_SUPPORT: Client support
+  Linked tasks: 0 | Completed: 0 | Remaining: 0
+- [R & D] R_AND_D: R & D
+  Linked tasks: 0 | Completed: 0 | Remaining: 0

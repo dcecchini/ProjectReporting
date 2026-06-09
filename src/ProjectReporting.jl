@@ -8,6 +8,7 @@ include("Core/domain.jl")
 include("Core/daily_model.jl")
 # include("weekly.jl")
 # include("monthly.jl")
+include("Services/llm_config_service.jl")
 include("LLMSummarizer.jl")
 include("utils/diff.jl")
 include("Services/daily_service.jl")
@@ -27,6 +28,7 @@ using .Domain
 using .DailyModel
 # using .Weekly
 # using .Monthly
+using .LLMConfigService
 using .LLMSummarizer
 using .DailyService
 using .TeamService

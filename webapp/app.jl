@@ -12,10 +12,12 @@ using ProjectReporting.LoggingConfig
 using ProjectReporting.TeamsService
 using ProjectReporting.ReportService
 using ProjectReporting.WeeklyGoalsService
+using ProjectReporting.WeeklyReportService
 using ProjectReporting.TeamService
 using ProjectReporting.LLMGoalAssistant
+using ProjectReporting.LLMConfigService
 
-include("ui.jl")
+include("UI.jl")
 using .UI
 
 import Base.deepcopy
@@ -154,7 +156,8 @@ function ui_home()
                 Html.a("Daily", href="/daily", class="text-primary"),
                 Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
                 Html.a("Goals Assistant", href="/weekly_goals_assistant", class="text-primary"),
-                Html.a("Team", href="/team", class="text-primary")
+                Html.a("Team", href="/team", class="text-primary"),
+                Html.a("LLM Settings", href="/llm_settings", class="text-primary")
             ])
         ])
     ]
@@ -167,7 +170,9 @@ function ui_team()
 
         row(class="items-center q-gutter-sm q-mb-md", [
             Html.a("Daily", href="/daily", class="text-primary"),
-            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary")
+            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
+            Html.a("Goals Assistant", href="/weekly_goals_assistant", class="text-primary"),
+            Html.a("LLM Settings", href="/llm_settings", class="text-primary")
         ]),
 
         row(class="items-center q-gutter-sm q-mb-md", [
@@ -235,19 +240,100 @@ end
 function ui_weekly_goals()
     [
         h1("Project Reporting Tool - {{project_name}}"),
-        h2("Weekly Goals"),
+        h2("Weekly Goals & AI Assistant"),
 
         row(class="items-center q-gutter-sm q-mb-md", [
             Html.a("Daily", href="/daily", class="text-primary"),
-            Html.a("Team", href="/team", class="text-primary")
+            Html.a("Team", href="/team", class="text-primary"),
+            Html.a("LLM Settings", href="/llm_settings", class="text-primary")
         ]),
 
+        # Week selector and actions
         row(class="items-center q-gutter-sm q-mb-md", [
             textfield("Week (YYYY-WNN)", :selected_week, dense=true, outlined=true),
             btn("Load", @click(:load_weekly_goals), color="primary"),
             btn("Save", @click(:save_weekly_goals), color="primary"),
-            btn("+ Goal", @click(:add_weekly_goal), color="secondary")
+            btn("+ Goal", @click(:add_weekly_goal), color="secondary"),
+            btn("Generate Report", @click(:generate_weekly_report_btn), color="secondary")
         ]),
+        p("{{weekly_report_status}}", @showif("weekly_report_status && weekly_report_status.length > 0"), class="text-caption q-mt-sm"),
+
+        # AI Assistant Section
+        separator(),
+        h3("🤖 AI Goal Assistant"),
+
+        card(class="q-pa-md q-mb-md", [
+            h4("Step 1: Context & Workstreams"),
+            row(class="items-start q-gutter-sm q-mb-sm", [
+                textfield("Priority / Context (optional): e.g. 'focus on FHIR integration'",
+                    :user_context,
+                    dense=true,
+                    outlined=true,
+                    style="width: 100%;")
+            ]),
+            row(class="items-center q-gutter-sm q-mb-sm", [
+                btn("Suggest Workstreams", @click(:suggest_workstreams_step), color="primary")
+            ])
+        ]),
+
+        # Suggested workstreams selection
+        card(class="q-pa-md q-mb-md", @showif("suggested_workstreams.length > 0"), [
+            h4("Select Workstreams to Use:"),
+            Html.div(@recur(:"(ws, wi) in suggested_workstreams"), [
+                Html.div(class="row items-center q-gutter-sm q-mb-sm", [
+                    Html.div(class="col-10", [
+                        checkbox(R"selected_workstreams.includes(ws)", 
+                            label=R"ws",
+                            @click("if (selected_workstreams.includes(ws)) { selected_workstreams = selected_workstreams.filter(s => s !== ws); } else { selected_workstreams.push(ws); }"))
+                    ])
+                ])
+            ]),
+            row(class="q-mt-md", [
+                btn("Step 2: Generate Goals", @click(:suggest_goals_step), color="primary", @showif("selected_workstreams.length > 0"))
+            ])
+        ]),
+
+        # AI suggested goals (editable before adding)
+        card(class="q-pa-md q-mb-md", @showif("suggested_goals.length > 0"), [
+            row(class="items-center q-gutter-sm q-mb-md", [
+                h4("AI Suggested Goals (Review & Edit)"),
+                btn("+ Add to List", @click(:add_suggested_to_weekly), color="secondary", size="sm"),
+                btn("Replace All", @click(:replace_with_suggested), color="warning", size="sm")
+            ]),
+            Html.div(@recur(:"(g, gi) in suggested_goals"), [
+                Html.div(class="row items-center q-gutter-sm q-mb-sm", [
+                    Html.div(class="col-2",
+                        [textfield("Goal ID", R"g.goal_id", dense=true, outlined=true)]),
+                    Html.div(class="col-5",
+                        [textfield("Description", R"g.goal_description", dense=true, outlined=true)]),
+                    Html.div(class="col-2",
+                        [textfield("Workstream", R"g.workstream", dense=true, outlined=true)]),
+                    Html.div(class="col-1",
+                        [textfield("Priority", R"g.priority", dense=true, outlined=true, type="number")]),
+                    Html.div(class="col-1",
+                        [Stipple.select(R"g.completed", options=["false", "true"], dense=true, outlined=true, label="Done")]),
+                    Html.div(class="col-1",
+                        [btn("", icon="delete",
+                            @click("delete_suggested_index = gi + 1"),
+                            color="negative", flat=true, round=true, size="sm")])
+                ])
+            ])
+        ]),
+
+        # Status messages
+        card(class="q-pa-sm q-mb-md bg-grey-1", @showif("suggestion_status && suggestion_status.length > 0"), [
+            p("{{suggestion_status}}", class="text-weight-bold")
+        ]),
+        card(class="q-pa-sm q-mb-md bg-grey-1",
+            @showif("context_summary && context_summary.length > 0"), [
+            p("Context used:", class="text-weight-bold"),
+            Html.pre("{{context_summary}}", style="font-size:0.85em; white-space:pre-wrap;")
+        ]),
+
+        separator(),
+
+        # Current Weekly Goals (main editable list)
+        h3("Weekly Goals"),
 
         row(class="items-center q-gutter-sm q-mb-md", [
             textfield("New Workstream", :new_workstream, dense=true, outlined=true),
@@ -255,7 +341,8 @@ function ui_weekly_goals()
         ]),
 
         card(class="q-pa-md", [
-            p("No goals for this week.", @showif("weekly_goals.length === 0"), class="text-grey"),
+            p("No goals for this week. Use AI Assistant above or click '+ Goal' to add manually.", 
+                @showif("weekly_goals.length === 0"), class="text-grey"),
             Html.div(@recur(:"(g, gi) in weekly_goals"), [
                 Html.div(class="row items-center q-gutter-sm q-mb-sm", [
                     Html.div(class="col-2", [textfield("Goal ID", R"g.goal_id", dense=true, outlined=true, readonly=true)]),
@@ -374,6 +461,8 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     @out workstream_options::Vector{String} = WeeklyGoalsService.load_workstreams()
     @in new_workstream::String = ""
     @in add_workstream::Bool = false
+    @in generate_weekly_report_btn::Bool = false
+    @out weekly_report_status::String = ""
 
     # Weekly goals
     @in selected_week::String = Config.iso_week_string(today())
@@ -408,15 +497,30 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     @in generate::Bool = false
     @in send::Bool = false
 
-    # Goal Assistant
+    # Goal Assistant - Two Step Workflow
     @in target_week_assistant::String = Config.iso_week_string(today() + Week(1))
     @in suggested_goals::Vector{UI.WeeklyGoalVM} = UI.WeeklyGoalVM[]
-    @in suggest::Bool = false
+    @in suggested_workstreams::Vector{String} = String[]
+    @in selected_workstreams::Vector{String} = String[]
+    @in suggest_workstreams_step::Bool = false
+    @in suggest_goals_step::Bool = false
     @in save_suggested::Bool = false
     @out suggestion_status::String = ""
     @out context_summary::String = ""
     @in delete_suggested_index::Int = 0
     @in add_suggested_goal::Bool = false
+    @in user_context::String = ""
+    @in assistant_step::String = "workstreams"  # "workstreams" or "goals"
+    
+    # LLM Settings
+    @in llm_provider::String = "ollama"
+    @in ollama_model::String = "qwen3.5:9b"
+    @in ollama_url::String = "http://localhost:11434/api/generate"
+    @in openai_model::String = "gpt-4o"
+    @in openai_api_key_input::String = ""  # Input field (masked)
+    @out openai_api_key_masked::String = ""  # Display as masked
+    @in save_llm_settings::Bool = false
+    @in load_llm_settings_btn::Bool = false
 
     # -----------------------------
     # INIT
@@ -602,6 +706,20 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     end
 
     # -----------------------------
+    # WEEKLY GOALS - GENERATE REPORT
+    # -----------------------------
+    @onbutton generate_weekly_report_btn begin
+        try
+            weekly_report_status = "⏳ Generating report for $(selected_week)..."
+            path = WeeklyReportService.save_weekly_report(selected_week)
+            weekly_report_status = "✅ Report saved: $(path)"
+        catch e
+            @error "[WeeklyGoals] Report generation error" exception=(e, catch_backtrace())
+            weekly_report_status = "❌ Error: $(sprint(showerror, e))"
+        end
+    end
+
+    # -----------------------------
     # WEEKLY GOALS - LOAD
     # -----------------------------
     @onbutton load_weekly_goals begin
@@ -780,13 +898,41 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     end
 
     # -----------------------------
-    # GOAL ASSISTANT - SUGGEST
+    # GOAL ASSISTANT - STEP 1: SUGGEST WORKSTREAMS
     # -----------------------------
-    @onbutton suggest begin
+    @onbutton suggest_workstreams_step begin
         try
-            suggestion_status = "⏳ Gathering context and calling LLM..."
-            goals, summary = LLMGoalAssistant.suggest_weekly_goals(target_week_assistant)
+            suggestion_status = "⏳ Step 1: Analyzing context and suggesting workstreams..."
+            suggested_workstreams, summary, ctx = LLMGoalAssistant.suggest_workstreams(selected_week, user_context)
             context_summary = summary
+            
+            # Filter to relevant workstreams only
+            relevant = filter(LLMGoalAssistant.is_relevant_workstream, suggested_workstreams)
+            
+            # Initialize selected workstreams with all suggested relevant ones
+            selected_workstreams = relevant
+            
+            assistant_step = "workstreams"
+            suggestion_status = "✅ Step 1 complete: $(length(relevant)) relevant workstream(s) suggested. Select which to use, then proceed to generate goals."
+        catch e
+            @error "[Assistant] Workstreams suggest error" exception=(e, catch_backtrace())
+            suggestion_status = "❌ Error: $(sprint(showerror, e))"
+        end
+    end
+
+    # -----------------------------
+    # GOAL ASSISTANT - STEP 2: SUGGEST GOALS FOR SELECTED WORKSTREAMS
+    # -----------------------------
+    @onbutton suggest_goals_step begin
+        try
+            if isempty(selected_workstreams)
+                suggestion_status = "⚠️ Please select at least one workstream first."
+                return
+            end
+            
+            suggestion_status = "⏳ Step 2: Generating specific goals for $(length(selected_workstreams)) workstream(s)..."
+            goals, ctx = LLMGoalAssistant.suggest_goals_for_workstreams(selected_week, selected_workstreams, user_context)
+            
             suggested_goals = UI.WeeklyGoalVM[
                 UI.WeeklyGoalVM(
                     goal_id          = g.goal_id,
@@ -798,9 +944,57 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
                 for g in goals
             ]
             workstream_options = WeeklyGoalsService.load_workstreams()
-            suggestion_status = "✅ $(length(goals)) goal(s) suggested. Review and edit below, then save."
+            assistant_step = "goals"
+            suggestion_status = "✅ Step 2 complete: $(length(goals)) goal(s) suggested for $(length(selected_workstreams)) workstream(s). Review and edit above, then click '+ Add to List' to merge with existing goals."
         catch e
-            @error "[Assistant] Suggest error" exception=(e, catch_backtrace())
+            @error "[Assistant] Goals suggest error" exception=(e, catch_backtrace())
+            suggestion_status = "❌ Error: $(sprint(showerror, e))"
+        end
+    end
+
+    # -----------------------------
+    # GOAL ASSISTANT - ADD SUGGESTED TO WEEKLY GOALS
+    # -----------------------------
+    @onbutton add_suggested_to_weekly begin
+        try
+            # Append suggested goals to weekly_goals, generating new IDs to avoid conflicts
+            for g in suggested_goals
+                new_id = next_weekly_goal_id(weekly_goals)
+                push!(weekly_goals, UI.WeeklyGoalVM(
+                    goal_id          = new_id,
+                    goal_description = g.goal_description,
+                    priority         = g.priority,
+                    completed        = g.completed,
+                    workstream       = g.workstream
+                ))
+            end
+            weekly_goals = copy(weekly_goals)  # trigger reactivity
+            
+            # Clear suggestions
+            suggested_goals = UI.WeeklyGoalVM[]
+            suggested_workstreams = String[]
+            selected_workstreams = String[]
+            
+            suggestion_status = "✅ Added $(length(suggested_goals)) goal(s) to weekly goals. Click 'Save' to persist."
+        catch e
+            @error "[Assistant] Add suggested to weekly error" exception=(e, catch_backtrace())
+            suggestion_status = "❌ Error: $(sprint(showerror, e))"
+        end
+    end
+
+    # -----------------------------
+    # GOAL ASSISTANT - REPLACE WEEKLY GOALS WITH SUGGESTED
+    # -----------------------------
+    @onbutton replace_with_suggested begin
+        try
+            weekly_goals = suggested_goals
+            suggested_goals = UI.WeeklyGoalVM[]
+            suggested_workstreams = String[]
+            selected_workstreams = String[]
+            
+            suggestion_status = "✅ Replaced weekly goals with AI suggestions. Click 'Save' to persist."
+        catch e
+            @error "[Assistant] Replace weekly goals error" exception=(e, catch_backtrace())
             suggestion_status = "❌ Error: $(sprint(showerror, e))"
         end
     end
@@ -863,6 +1057,54 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
             suggestion_status = "❌ Error saving: $(sprint(showerror, e))"
         end
     end
+
+    # -----------------------------
+    # LLM SETTINGS - LOAD
+    # -----------------------------
+    @onbutton load_llm_settings_btn begin
+        try
+            settings = LLMConfigService.load_llm_settings()
+            llm_provider = settings.provider == LLMConfigService.OPENAI ? "openai" : "ollama"
+            ollama_model = settings.ollama_model
+            ollama_url = settings.ollama_url
+            openai_model = settings.openai_model
+            openai_api_key_masked = isempty(settings.openai_api_key) ? "" : "••••••••" * (length(settings.openai_api_key) > 8 ? settings.openai_api_key[end-3:end] : "")
+            openai_api_key_input = ""  # Clear input field
+        catch e
+            @error "[LLMSettings] Load error" exception=(e, catch_backtrace())
+        end
+    end
+
+    # -----------------------------
+    # LLM SETTINGS - SAVE
+    # -----------------------------
+    @onbutton save_llm_settings begin
+        try
+            settings = LLMConfigService.load_llm_settings()
+            
+            # Update provider
+            settings = LLMConfigService.set_provider(settings, llm_provider)
+            
+            # Update models
+            settings.ollama_model = ollama_model
+            settings.ollama_url = ollama_url
+            settings.openai_model = openai_model
+            
+            # Only update API key if a new one was entered
+            if !isempty(openai_api_key_input)
+                settings = LLMConfigService.set_api_key(settings, openai_api_key_input)
+            end
+            
+            LLMConfigService.save_llm_settings(settings)
+            
+            # Update masked display
+            current_key = LLMConfigService.get_api_key(settings)
+            openai_api_key_masked = isempty(current_key) ? "" : "••••••••" * (length(current_key) > 8 ? current_key[end-3:end] : "")
+            openai_api_key_input = ""  # Clear input field
+        catch e
+            @error "[LLMSettings] Save error" exception=(e, catch_backtrace())
+        end
+    end
 end
 
 # -----------------------------
@@ -875,7 +1117,9 @@ function ui()
 
         row(class="items-center q-gutter-sm q-mb-md", [
             Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
-            Html.a("Team", href="/team", class="text-primary")
+            Html.a("Goals Assistant", href="/weekly_goals_assistant", class="text-primary"),
+            Html.a("Team", href="/team", class="text-primary"),
+            Html.a("LLM Settings", href="/llm_settings", class="text-primary")
         ]),
 
         row(class="items-center q-gutter-sm q-mb-md", [
@@ -1007,28 +1251,47 @@ function ui_weekly_goals_assistant()
         row(class="items-center q-gutter-sm q-mb-md", [
             Html.a("Daily", href="/daily", class="text-primary"),
             Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
-            Html.a("Team", href="/team", class="text-primary")
+            Html.a("Team", href="/team", class="text-primary"),
+            Html.a("LLM Settings", href="/llm_settings", class="text-primary")
         ]),
 
+        # Step 1: Suggest Workstreams
         card(class="q-pa-md q-mb-md", [
-            h3("Generate Goals with AI"),
+            h3("Step 1: Select Workstreams"),
             row(class="items-center q-gutter-sm q-mb-sm", [
                 textfield("Target Week (YYYY-WNN)", :target_week_assistant, dense=true, outlined=true),
-                btn("Suggest Goals", @click(:suggest), color="primary")
+                btn("Suggest Workstreams", @click(:suggest_workstreams_step), color="primary")
             ]),
-            p("{{suggestion_status}}",
-                @showif("suggestion_status && suggestion_status.length > 0"),
-                class="q-mt-sm"),
-            card(class="q-pa-sm q-mt-sm bg-grey-1",
-                @showif("context_summary && context_summary.length > 0"), [
-                p("Context used:", class="text-weight-bold"),
-                Html.pre("{{context_summary}}", style="font-size:0.85em; white-space:pre-wrap;")
+            row(class="items-start q-gutter-sm q-mb-sm", [
+                textfield("Priority / Context (optional): e.g. 'priority for this week is demo recordings'",
+                    :user_context,
+                    dense=true,
+                    outlined=true,
+                    style="width: 100%;")
             ])
         ]),
 
+        # Show suggested workstreams for selection
+        card(class="q-pa-md q-mb-md", @showif("suggested_workstreams.length > 0"), [
+            h4("Suggested Workstreams - Select which to use:"),
+            Html.div(@recur(:"(ws, wi) in suggested_workstreams"), [
+                Html.div(class="row items-center q-gutter-sm q-mb-sm", [
+                    Html.div(class="col-10", [
+                        checkbox(R"selected_workstreams.includes(ws)", 
+                            label=R"ws",
+                            @click("if (selected_workstreams.includes(ws)) { selected_workstreams = selected_workstreams.filter(s => s !== ws); } else { selected_workstreams.push(ws); }"))
+                    ])
+                ])
+            ]),
+            row(class="q-mt-md", [
+                btn("Proceed to Generate Goals", @click(:suggest_goals_step), color="primary", @showif("selected_workstreams.length > 0"))
+            ])
+        ]),
+
+        # Step 2: Suggested Goals
         card(class="q-pa-md", @showif("suggested_goals.length > 0"), [
             row(class="items-center q-gutter-sm q-mb-md", [
-                h3("Suggested Goals"),
+                h3("Step 2: Suggested Goals"),
                 btn("+ Goal", @click(:add_suggested_goal), color="secondary", size="sm"),
                 btn("Save to Weekly Goals", @click(:save_suggested), color="primary")
             ]),
@@ -1050,6 +1313,66 @@ function ui_weekly_goals_assistant()
                             color="negative", flat=true, round=true, size="sm")])
                 ])
             ])
+        ]),
+
+        # Status and Context
+        card(class="q-pa-sm q-mt-md bg-grey-1", @showif("suggestion_status && suggestion_status.length > 0"), [
+            p("Status: {{suggestion_status}}", class="text-weight-bold")
+        ]),
+        card(class="q-pa-sm q-mt-md bg-grey-1",
+            @showif("context_summary && context_summary.length > 0"), [
+            p("Context used:", class="text-weight-bold"),
+            Html.pre("{{context_summary}}", style="font-size:0.85em; white-space:pre-wrap;")
+        ])
+    ]
+end
+
+function ui_llm_settings()
+    [
+        h1("Project Reporting Tool - {{project_name}}"),
+        h2("LLM Settings"),
+
+        row(class="items-center q-gutter-sm q-mb-md", [
+            Html.a("Daily", href="/daily", class="text-primary"),
+            Html.a("Weekly Goals", href="/weekly_goals", class="text-primary"),
+            Html.a("Team", href="/team", class="text-primary")
+        ]),
+
+        card(class="q-pa-md", [
+            row(class="items-center q-gutter-sm q-mb-md", [
+                btn("Load Settings", @click(:load_llm_settings_btn), color="primary"),
+                btn("Save Settings", @click(:save_llm_settings), color="primary")
+            ]),
+
+            # Provider Selection
+            row(class="items-center q-gutter-sm q-mb-md", [
+                h4("Provider:"),
+                Stipple.select(R"llm_provider", options=["ollama", "openai"], dense=true, outlined=true)
+            ]),
+
+            # Ollama Settings
+            card(class="q-pa-md q-mb-md", @showif("llm_provider === 'ollama'"), [
+                h4("Ollama Settings"),
+                row(class="items-center q-gutter-sm q-mb-sm", [
+                    textfield("Model", :ollama_model, dense=true, outlined=true),
+                    textfield("URL", :ollama_url, dense=true, outlined=true, style="width: 400px;")
+                ])
+            ]),
+
+            # OpenAI Settings
+            card(class="q-pa-md q-mb-md", @showif("llm_provider === 'openai'"), [
+                h4("OpenAI Settings"),
+                row(class="items-center q-gutter-sm q-mb-sm", [
+                    textfield("Model", :openai_model, dense=true, outlined=true)
+                ]),
+                row(class="items-center q-gutter-sm q-mb-sm", [
+                    textfield("API Key", :openai_api_key_input, dense=true, outlined=true, type="password", style="width: 400px;"),
+                    p(@showif("openai_api_key_masked && openai_api_key_masked.length > 0"), [
+                        "Current: {{openai_api_key_masked}}"
+                    ], class="text-grey")
+                ]),
+                p("Leave API Key empty to keep existing key.", class="text-caption text-grey")
+            ])
         ])
     ]
 end
@@ -1061,6 +1384,8 @@ end
 @page("/weekly_goals_assistant", ui_weekly_goals_assistant)
 
 @page("/team", ui_team)
+
+@page("/llm_settings", ui_llm_settings)
 
 @page("/", ui_home)
 
