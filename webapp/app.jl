@@ -509,6 +509,8 @@ const ALLOCATION_LABELS_MAP = Dict(allocation_to_string(a) => allocation_to_labe
     @out context_summary::String = ""
     @in delete_suggested_index::Int = 0
     @in add_suggested_goal::Bool = false
+    @in add_suggested_to_weekly::Bool = false
+    @in replace_with_suggested::Bool = false
     @in user_context::String = ""
     @in assistant_step::String = "workstreams"  # "workstreams" or "goals"
     
