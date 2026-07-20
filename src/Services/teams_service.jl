@@ -19,14 +19,16 @@ function task_to_line(member::String, t::ReportTask)
         t.status == :blocked   ? "  ⚠" :
         "   •"
 
+    suffix = t.blocker !== nothing && !isempty(t.blocker) ? " — Blocker: $(t.blocker)" : ""
+
     parts = filter(!isempty, strip.(split(t.description, ';')))
     if isempty(parts)
-        return "$(prefix) [$(member)] $(t.description)"
+        return "$(prefix) [$(member)] $(t.description)$(suffix)"
     end
 
     # Adaptive Cards TextBlock uses markdown; use a hard line break separator so Teams
     # doesn't collapse newlines into spaces.
-    return join((p -> "$(prefix) [$(member)] $(p)").(parts), "  \n")
+    return join((p -> "$(prefix) [$(member)] $(p)$(suffix)").(parts), "  \n")
 end
 
 function member_block(member::String, tasks::Vector{ReportTask})

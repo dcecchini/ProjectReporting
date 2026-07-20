@@ -19,6 +19,7 @@ struct ReportTask
     description::String
     allocation::Allocation
     status::Symbol   # :new, :unchanged, :completed, :blocked
+    blocker::Union{Nothing,String}
 end
 
 function to_dict(t::ReportTask)
@@ -26,7 +27,8 @@ function to_dict(t::ReportTask)
         "member" => t.member,
         "description" => t.description,
         "allocation" => allocation_to_string(t.allocation),
-        "status" => String(t.status)
+        "status" => String(t.status),
+        "blocker" => t.blocker
     )
 end
 
@@ -35,7 +37,8 @@ function from_dict(::Type{ReportTask}, d::Dict)
         d["member"],
         d["description"],
         parse_allocation(d["allocation"]),
-        Symbol(d["status"])
+        Symbol(d["status"]),
+        get(d, "blocker", nothing)
     )
 end
 
@@ -123,13 +126,10 @@ function generate_report(date::String, entries::Vector{DailyEntry}, prev_entries
         # Detect new & unchanged
         # -------------------------
         for t in entry.tasks
+            is_blocked = (t.execution_state == BLOCKED) || (t.blocker !== nothing && !isempty(t.blocker))
             for chunk in split_tasks(t.description)
-                status =
-                    t.execution_state == BLOCKED ? :blocked :
-                    chunk ∉ prev_desc_set ? :new :
-                    :unchanged
-
-                task = ReportTask(member, chunk, t.allocation, status)
+                status = is_blocked ? :blocked : (chunk ∉ prev_desc_set ? :new : :unchanged)
+                task = ReportTask(member, chunk, t.allocation, status, t.blocker)
 
                 if status == :blocked
                     push!(blockers, task)
@@ -144,7 +144,7 @@ function generate_report(date::String, entries::Vector{DailyEntry}, prev_entries
         # -------------------------
         for chunk in setdiff(prev_desc_set, curr_desc_set)
             push!(all_tasks,
-                ReportTask(member, chunk, CORE, :completed)
+                ReportTask(member, chunk, CORE, :completed, nothing)
             )
         end
     end
@@ -181,12 +181,13 @@ function render_text_report(report::Report)
         push!(lines, "⚠ Blockers")
 
         for t in report.blockers
+            blocker_note = t.blocker !== nothing && !isempty(t.blocker) ? " — Blocker: $(t.blocker)" : ""
             parts = filter(!isempty, strip.(split(t.description, ';')))
             if isempty(parts)
-                push!(lines, "  ⚠ $(t.description) [$(t.member)]")
+                push!(lines, "  ⚠ $(t.description)$(blocker_note) [$(t.member)]")
             else
                 for p in parts
-                    push!(lines, "  ⚠ $(p) [$(t.member)]")
+                    push!(lines, "  ⚠ $(p)$(blocker_note) [$(t.member)]")
                 end
             end
         end
